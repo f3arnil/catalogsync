@@ -1,10 +1,16 @@
-var express = require('express');
-var app = express();
+var express = require('express')
+var getSectionsData = require('./src/sections-parser/index')
+var app = express()
+const SERVER_PORT = 3000
 
-app.get('/', function (req, res) {
-  res.send('Hello World!');
-});
+app.use('/json-data', express.static('json-data'))
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
-});
+app.get('/', (req, res) => {
+    res.send('Hello World!')
+})
+
+app.get('/catalog-sections', getSectionsData)
+
+app.listen(SERVER_PORT, () => {
+    console.log(`Starting server on port ${SERVER_PORT}`)
+})
