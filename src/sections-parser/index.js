@@ -25,7 +25,7 @@ const getSubCategoriesData = (item, body) => {
                         (i, elem) => {
                             const url = $(elem).attr('href')
                             const parsedUrl = urlParser.parse(url)
-                            console.log('!=>>', parsedUrl)
+                            console.log('!=>>', parsedUrl.pathname)
                             const isVirtual = parsedUrl.query !== null
 
                             if (isVirtual) {
@@ -50,7 +50,14 @@ const getSubCategoriesData = (item, body) => {
 
                             totalItemsCount += parseInt(itemsCount)
 
-                            return { name, url, imageUrl, itemsCount, isVirtual }
+                            return {
+                                displayName: name,
+                                name: parsedUrl.pathname.slice(1),
+                                url,
+                                imageUrl,
+                                itemsCount,
+                                isVirtual,
+                            }
                         }
                     )
                     .get()
