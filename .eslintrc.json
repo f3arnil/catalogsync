@@ -1,0 +1,51 @@
+{
+  "rules": {
+    "import/extensions": ["error", "always", {
+      "js": "never",
+      "jsx": "never"
+    }],
+    "indent": [
+        "error", 4,
+        { "MemberExpression": "off" }
+      ],
+      "quotes": [
+        2,
+        "single"
+      ],
+      "linebreak-style": [
+        0,
+        "unix"
+      ],
+      "max-lines": ["warn", {
+        "max": 400,
+        "skipBlankLines": true,
+        "skipComments": true
+        }
+      ],
+      "max-depth": ["warn", 3],
+      "semi": [2, "never"],
+      "no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 1 }],
+      "comma-style": [
+        2,
+        "last"
+      ],
+      "comma-dangle": 0,
+      "no-useless-return": 0,
+      "eol-last": 1,
+      "arrow-body-style": 0,
+      "no-use-before-define": ["error", { "functions": false }],
+      "env": {
+        "es6": true,
+        "node": true
+      }
+    },
+    "extends": "eslint-config-airbnb-base",
+    "parserOptions": {
+      "ecmaVersion": 6,
+      "experimentalObjectRestSpread": true,
+      "sourceType": "module",
+      "modules": true,
+      "globalReturn": false
+    }
+  }
+    
