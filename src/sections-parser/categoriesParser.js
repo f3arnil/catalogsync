@@ -3,12 +3,13 @@ var request = require('request')
 var urlParser = require('url')
 
 const CATEGORIE_SEARCH_URL = 'https://catalog.api.onliner.by/search'
+const ITEMS_PER_PAGE = 30
 
 const getCoffee = (timeout) => {
     const secTimeOut = timeout * 1000
     console.log(`Pause ${timeout} seconds..`)
-    return new Promise((resolve, reject) => {
-        setTimeout(() => reject(false/*'☕'*/), secTimeOut)
+    return new Promise((resolve) => {
+        setTimeout(() => resolve('☕'), secTimeOut)
     })
   }
 
@@ -36,31 +37,39 @@ const asyncTest = async (req, res) => {
     )
 }
 
-const getPagesCount = (categorie) => {
+const getPagesCount = (categorie, index, dataLength) => {
     return new Promise(
         (resolve, reject) => {
+            console.log(`[${index}/${dataLength}][${categorie}] Going to do async action`)
             const url = `${CATEGORIE_SEARCH_URL}/${categorie}`
             const options = {
                 url,
                 method: 'GET',
                 json: true,
+                timeout: 3000,
+                headers: [{
+                    'User-Agent': `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.${dataLength - index} Safari/537.3${index}`,
+                }]
             }
-            console.log(`Ok, lets do it! URL: ${categorie}`)
+
             request(options, (error, response, body) => {
-                console.log(`${categorie} data recieved..`)
                 if (error) {
                     console.error(JSON.stringify(error))
-                    reject(false)
+                    reject(error)
                     return
                 }
+                console.log(`[${index}/${dataLength}][${categorie}] Data recieved..`)
                 // console.log('!=>', body.total, body.total_ungrouped)
                 const total = body.total
                 const total_ungrouped = body.total_ungrouped
-
+                if (total === undefined) {
+                    console.log('\n===== ERROR =====\n', JSON.stringify(body), '\n===== ERROR =====\n')
+                }
                 if (total !== total_ungrouped) {
                     console.log(`${categorie} data not equal: ${total}-${total_ungrouped}`)
                 }
-                resolve(body.total)
+                const result = !total ? { error: body } : Math.ceil(total / ITEMS_PER_PAGE)
+                resolve(result)
             })
         }
     )
@@ -70,31 +79,58 @@ const mapPagesCount = (dataArray) => {
     return new Promise(
         async (resolve, reject) => {
             let newDataArray = []
-            console.log(`Total items to request ~ ${dataArray.length - 1}`)
+            const dataLength = dataArray.length - 1
+            console.log(`Total items to request: ${dataLength}`)
+            let counter = 0
             for (let index = 0; index < dataArray.length;) {
                 let dataItem = dataArray[index]
-                let awaitTimeoutSec = 0
+                let awaitTimeoutSec = 0.1
+                
+                if (index < 1500) {
+                    // awaitTimeoutSec = 2
+                    const pagesCount = await getPagesCount(
+                        dataItem.id,
+                        index,
+                        dataLength
+                    )
+                    // .catch(() => {
+                    //     awaitTimeoutSec = 60
+                    //     index -= 1
+                    //     return Promise.reject('error')
+                    // })
 
-                if (index < 5 && dataItem.isVirtual !== true) {
-                    awaitTimeoutSec = 2
-                    console.log(`Going to do async action ${index}/${dataArray.length - 1}`)
-                    const pagesCount = await getPagesCount(dataItem.id)
-                    console.log(`Pages count is: ${pagesCount}`)
-                    dataItem = {
-                        ...dataItem,
-                        pagesCount,
+                    if (typeof pagesCount !== 'object') {
+                        console.log(`[${index}/${dataLength}][${dataItem.id}] Pages count is: ${pagesCount}`)
+                        dataItem = {
+                            ...dataItem,
+                            pagesCount,
+                        }
+                    } else {
+                        index -= 1
+                        awaitTimeoutSec = 60
                     }
                 }
                 
-                if (dataItem.isVirtual === true) {
-                    console.log(`Skip virtual item: ${dataItem.id}`)
-                    awaitTimeoutSec = 0
-                }
-                const coffee = await getCoffee(awaitTimeoutSec)
-                console.log(coffee)
+                // if (dataItem.isVirtual === true) {
+                //     console.log(`Skip virtual item: ${dataItem.id}`)
+                //     awaitTimeoutSec = 0
+                // }
                 // console.log(JSON.stringify(dataItem))
                 newDataArray.push(dataItem)
                 index += 1
+                counter += 1
+                if (counter >= 10) {
+                    counter = awaitTimeoutSec === 60
+                        ? counter - 1
+                        : 0
+                    
+                    awaitTimeoutSec = awaitTimeoutSec === 60
+                        ? awaitTimeoutSec
+                        : 3
+                    
+                }
+                const coffee = await getCoffee(awaitTimeoutSec)
+                console.log(coffee)
             }
 
             resolve(newDataArray)

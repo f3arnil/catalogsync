@@ -11,7 +11,11 @@ let totalItemsCount = 0
 // const excludedUrlToParseList = []
 
 const getCategoriesData = async (req, res) => {
-    console.log('Start getting catalog categories!...')
+    console.log(
+        '\n====================================\n',
+        'Start getting catalog categories!...',
+        '\n====================================\n'
+    )
     await request(SECTIONS_LIST_URL, async (error, response, body) => {
         if (error) {
             console.error(error)
