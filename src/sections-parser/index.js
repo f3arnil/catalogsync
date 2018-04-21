@@ -42,7 +42,6 @@ const getCategoriesData = async (req, res) => {
                 return item
             }
         )
-        console.log(`Total items count = ${totalItemsCount}`)
 
         const excludedUrlToParseList = resultDataArray
             .filter(item => item.isVirtual === true)
@@ -53,9 +52,27 @@ const getCategoriesData = async (req, res) => {
             .map(item => item.url)
 
         console.log('Categories parsed!... Going to get pages count...', resultDataArray.length)
-        console.log(`Virtual items count: ${excludedUrlToParseList.length - 1}`)
-        console.log(`Items count to parse: ${urlToParseList.length - 1}`)
+
         const mappedSections = await mapPagesCount(resultDataArray)
+        let totalPagesCountToParse = 0
+        mappedSections.map(
+            (item, index) => {
+                if (
+                    {}.hasOwnProperty.call(item, 'pagesCount')
+                    && !isNaN(parseInt(item.pagesCount, 10))
+                ) {
+                    totalPagesCountToParse += parseInt(item.pagesCount, 10)
+                } else {
+                    console.log(`[${index}][${item.id}]Wrong pages count value: ${item.pagesCount}`)
+                }
+                return item
+            }
+        )
+
+        console.log(`Virtual items count: ${excludedUrlToParseList.length - 1}`)
+        console.log(`Categorie url\'s count to parse: ${urlToParseList.length - 1}`)
+        console.log(`Total items count = ${totalItemsCount}`)
+        console.log(`Total pages count to parse: ${totalPagesCountToParse}`)
 
         const responseData = `<div>
             <h2>Excluded Urls from parsing (${excludedUrlToParseList.length})</h2>
