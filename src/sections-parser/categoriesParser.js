@@ -1,5 +1,5 @@
 var cheerio = require('cheerio')
-var request = require('request-promise') //require('request')
+var request = require('request-promise')
 var urlParser = require('url')
 
 const CATEGORIE_SEARCH_URL = 'https://catalog.api.onliner.by/search'
@@ -172,6 +172,7 @@ const parseCategoriesData = (item, body) => {
                                 sectionName: item.data,
                                 sectionId: item.dataId,
                                 subSectionName: title,
+                                subSectionId: i,
                                 categorieName: name,
                                 id: parsedUrl.pathname.slice(1),
                                 url,

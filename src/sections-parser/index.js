@@ -5,10 +5,8 @@ var parseCategoriesData = require('./categoriesParser').parseCategoriesData
 var mapPagesCount = require('./categoriesParser').mapPagesCount
 
 const SECTIONS_LIST_URL = 'https://catalog.onliner.by'
-
+const CATEGORIES_LIST_FILE_NAME = 'catalogCategoriesData.json'
 let totalItemsCount = 0
-// const urlToParseList = []
-// const excludedUrlToParseList = []
 
 const getCategoriesData = async (req, res) => {
     console.log(
@@ -84,7 +82,7 @@ const getCategoriesData = async (req, res) => {
         </div>`
 
         fs.writeFile(
-            './json-data/catalogCategoriesData.json',
+            `../json-data/categoriesData/${CATEGORIES_LIST_FILE_NAME}`,
             JSON.stringify(mappedSections),
             (err) => {
                 if (err) {
@@ -96,4 +94,5 @@ const getCategoriesData = async (req, res) => {
     })
 }
 
-module.exports = getCategoriesData
+module.exports.default = getCategoriesData
+module.exports.categoriesListJson = CATEGORIES_LIST_FILE_NAME
