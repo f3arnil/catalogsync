@@ -2,11 +2,13 @@ const normalRequest = require('request')
 const request = require('request-promise')
 const fs = require('fs')
 
+const getCoffee = require('../../common/getCoffee').getCoffee
+
 let categoriesData = []
 let currentUserAgent = 0
 
 const CATEGORIES_LIST_FILE_NAME = require('../sections-parser/index').categoriesListJson
-const COFFE_MESSAGE = '☕'
+
 const DEFAULT_REQUEST_TIMEOUT = 10000
 const ERROR_CONSOLE_TITLE = '\n===== ERROR =====\n'
 const CATEGORIE_SEARCH_URL = 'https://catalog.api.onliner.by/search'
@@ -66,8 +68,11 @@ const getUniqUserAgent = (chunkIndex, itemInChunk, superIndex, page, total) => {
         `Mozilla/5.0.${chunkIndex}.${itemInChunk} (Linux; Android 7.0; SM-G930VC Build/NRD90M; wv) AppleWebKit/537.36.${superIndex} (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.83 Mobile Safari/537.36.${page}.${total}`,
         `Mozilla/5.0.${chunkIndex}.${itemInChunk} (Linux; Android 7.0; SM-G892A Build/NRD90M; wv) AppleWebKit/537.36.${superIndex} (KHTML, like Gecko) Version/4.0 Chrome/60.0.3112.107 Mobile Safari/537.36.${page}.${total}`,
     ]
+    
     console.log(`[${chunkIndex}-${itemInChunk}-${superIndex}][${page}/${total}] USER AGENT ID: ${currentUserAgent}/${userAgentsList.length}`)
+    
     const result = userAgentsList[currentUserAgent]
+    
     currentUserAgent += 1
 
     if (currentUserAgent >= userAgentsList.length) {
@@ -75,14 +80,6 @@ const getUniqUserAgent = (chunkIndex, itemInChunk, superIndex, page, total) => {
     }
 
     return result
-}
-
-const getCoffee = (timeout = 0) => {
-    const secTimeOut = timeout * 1000
-    console.log(`Pause ${timeout} seconds..`)
-    return new Promise((resolve) => {
-        setTimeout(() => resolve(COFFE_MESSAGE), secTimeOut)
-    })
 }
 
 const parseCategories = (req, res) => normalRequest({
@@ -286,6 +283,7 @@ const parseCategoriePages = (dataObject, chunkIndex, itemInChunk, superIndex) =>
             const coffee = await getCoffee(awaitTimeoutSec)
             console.log(coffee)
         }
+        
         resolve(productsData)
     }
 )
@@ -304,7 +302,7 @@ const getCategoriePageData = (categorie, page, total, chunkIndex, itemInChunk, s
             json: true,
             timeout: DEFAULT_REQUEST_TIMEOUT,
             headers: [{
-                'User-Agent': userAgent// `Mozilla/5.0.${chunkIndex}.${superIndex} (Macintosh; Intel Mac OS X 10_13_4_${chunkIndex}_${superIndex}) AppleWebKit/537.36.${integerDate} (KHTML, like Gecko) Chrome/65.${chunkIndex}.0.3325.${total - page} Safari/537.${superIndex}.3${page}`,
+                'User-Agent': userAgent // `Mozilla/5.0.${chunkIndex}.${superIndex} (Macintosh; Intel Mac OS X 10_13_4_${chunkIndex}_${superIndex}) AppleWebKit/537.36.${integerDate} (KHTML, like Gecko) Chrome/65.${chunkIndex}.0.3325.${total - page} Safari/537.${superIndex}.3${page}`,
             }]
         }
         console.log(`[${chunkIndex}-${itemInChunk}-${superIndex}][${page}/${total}][${categorie}] Requesting data..`)

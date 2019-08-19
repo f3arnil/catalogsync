@@ -2,19 +2,12 @@ var cheerio = require('cheerio')
 var request = require('request-promise')
 var urlParser = require('url')
 
+const getCoffee = require('../../common/getCoffee').getCoffee
+
 const CATEGORIE_SEARCH_URL = 'https://catalog.api.onliner.by/search'
 const ITEMS_PER_PAGE = 30
-const COFFE_MESSAGE = '☕'
 const DEFAULT_REQUEST_TIMEOUT = 10000
 const ERROR_CONSOLE_TITLE = '\n===== ERROR =====\n'
-
-const getCoffee = (timeout = 0) => {
-    const secTimeOut = timeout * 1000
-    console.log(`Pause ${timeout} seconds..`)
-    return new Promise((resolve) => {
-        setTimeout(() => resolve(COFFE_MESSAGE), secTimeOut)
-    })
-}
 
 const asyncTest = async (req, res) => {
     const array = [1, 2, 3, 4, 5]
@@ -54,7 +47,9 @@ const getPagesCount = (categorie, index, dataLength) => {
                     'User-Agent': `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36.${integerDate} (KHTML, like Gecko) Chrome/65.0.3325.${dataLength - index} Safari/537.3${index}`,
                 }]
             }
+            
             console.log(`[${index}/${dataLength}][${categorie}] Requesting data..`)
+            
             const body = await request(options).catch(
                 (error) => {
                     console.error(JSON.stringify(error))
